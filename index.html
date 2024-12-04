@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>Login</title>
+    <link
+      rel="stylesheet"
+      href="https://use.fontawesome.com/releases/v5.7.1/css/all.css"
+    />
+    <link href="style.css" rel="stylesheet" type="text/css" />
+  </head>
+  <body>
+    <div class="login">
+      <h1>Login</h1>
+      <form id="login-form" action="authenticate.php" method="post">
+        <label for="employee_id">
+          <i class="fas fa-user"></i>
+        </label>
+        <input
+          type="text"
+          name="employee_id"
+          placeholder="Employee ID"
+          id="employee_id"
+          required
+        />
+        <label for="dob">
+          <i class="fas fa-calendar"></i>
+        </label>
+        <input
+          type="date"
+          name="dob"
+          placeholder="Date of Birth"
+          id="dob"
+          required
+        />
+        <label for="contact_no">
+          <i class="fas fa-phone"></i>
+        </label>
+        <input
+          type="text"
+          name="contact_no"
+          placeholder="Contact Number"
+          id="contact_no"
+          required
+        />
+        <label for="email">
+          <i class="fas fa-envelope"></i>
+        </label>
+        <input
+          type="email"
+          name="email"
+          placeholder="Email"
+          id="email"
+          required
+        />
+        <input type="submit" value="Send OTP" />
+      </form>
+    </div>
+
+    <div class="login otp-section" style="display: none">
+      <h1>Enter OTP</h1>
+      <form id="otp-form" action="verify.php" method="post">
+        <label for="otp">
+          <i class="fas fa-lock"></i>
+        </label>
+        <input type="text" name="otp" placeholder="OTP" id="otp" required />
+        <input type="submit" value="Verify & Login" />
+      </form>
+    </div>
+
+    <script>
+      document
+        .getElementById("login-form")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          var form = this;
+          var formData = new FormData(form);
+
+          fetch("authenticate.php", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                console.log("OTP:", data.otp);
+                alert("OTP sent successfully to your number");
+                document.querySelector(".otp-section").style.display = "block";
+                document.querySelector(".login").style.display = "none";
+              } else {
+                alert(data.message);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        });
+
+      document
+        .getElementById("otp-form")
+        .addEventListener("submit", function (event) {
+          event.preventDefault();
+          var form = this;
+          var formData = new FormData(form);
+
+          fetch("verify.php", {
+            method: "POST",
+            body: formData,
+          })
+            .then((response) => response.json())
+            .then((data) => {
+              if (data.success) {
+                var overlay = document.createElement("div");
+                overlay.classList.add("custom-overlay");
+                overlay.innerHTML =
+                  '<div class="custom-popup">Login Successful! Redirecting to NPS website...</div>';
+
+                document.body.appendChild(overlay);
+
+                setTimeout(function () {
+                  overlay.remove();
+                  window.location.href = "https://enps.nsdl.com/eNPS/NationalPensionSystem.html";
+                }, 1500);
+              } else {
+                alert(data.message);
+              }
+            })
+            .catch((error) => {
+              console.error("Error:", error);
+            });
+        });
+    </script>
+  </body>
+</html>
